@@ -1,3 +1,5 @@
+mod entities;
+
 mod model;
 mod source;
 mod font;

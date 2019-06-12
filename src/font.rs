@@ -1,9 +1,7 @@
 use std::collections::HashMap;
-use std::fs::File;
 use std::path::{Path, PathBuf};
 
-use failure::{format_err, Error};
-use image::GenericImageView;
+use crate::result::Result;
 
 #[derive(Debug, Clone)]
 pub struct FontDir {
@@ -12,19 +10,22 @@ pub struct FontDir {
 }
 
 impl FontDir {
-    pub fn new(search_path: impl AsRef<Path>, font_name: &str) -> FontDir {
+    pub fn new(search_path: impl AsRef<Path>, font_name: &str) -> Result<FontDir> {
         let mut dir = PathBuf::new();
         dir.push(search_path);
         dir.push(font_name);
         dir.push("chars");
 
-        FontDir {
+        let mut font_dir = FontDir {
             dir,
             cache: HashMap::new(),
-        }
+        };
+
+        let _ = font_dir.get_char(' ')?;
+        Ok(font_dir)
     }
 
-    pub fn get_char(&mut self, ch: char) -> Result<&CharImage, Error> {
+    pub fn get_char(&mut self, ch: char) -> Result<&CharImage> {
         if !self.cache.contains_key(&ch) {
             let mut file_name = self.dir.clone();
             file_name.push(format!("{:04x}.png", ch as u16));
@@ -33,6 +34,11 @@ impl FontDir {
         }
 
         Ok(self.cache.get(&ch).unwrap())
+    }
+
+    pub fn height(&self) -> usize {
+        let space_ch = self.cache.get(&' ').unwrap();
+        space_ch.dim().1
     }
 }
 
@@ -65,18 +71,7 @@ impl CharImage {
         }
     }
 
-    fn get(&self, x: usize, y: usize) -> bool {
-        if y >= self.ysize {
-            panic!("y: out of index");
-        }
-
-        let &current = self.arr.get(x).expect("x: out of index");
-        let mask = 1 << y;
-
-        current & mask != 0
-    }
-
-    fn load(path: impl AsRef<Path>) -> Result<CharImage, Error> {
+    fn load(path: impl AsRef<Path>) -> Result<CharImage> {
         let img = image::open(path)?.to_luma();
 
         let (xsize, ysize) = img.dimensions();
@@ -90,5 +85,20 @@ impl CharImage {
         }
 
         Ok(cimg)
+    }
+
+    pub fn get(&self, x: usize, y: usize) -> bool {
+        if y >= self.ysize {
+            panic!("y: out of index");
+        }
+
+        let &current = self.arr.get(x).expect("x: out of index");
+        let mask = 1 << y;
+
+        current & mask != 0
+    }
+
+    pub fn dim(&self) -> (usize, usize) {
+        (self.arr.len(), self.ysize)
     }
 }

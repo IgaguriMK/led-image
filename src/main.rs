@@ -1,11 +1,11 @@
-mod entities;
-
-mod model;
-mod source;
+mod builder;
 mod font;
+mod model;
+mod result;
+mod save;
+mod source;
 
-use failure::Error;
-
+use crate::result::Result;
 use crate::source::Source;
 
 fn main() {
@@ -18,11 +18,20 @@ fn main() {
     }
 }
 
-fn wrapped_main() -> Result<(), Error> {
+fn wrapped_main() -> Result<()> {
     let source = Source::load("./sample.yaml")?;
-    println!("{:#?}", source);
 
-    let mut font_dir = font::FontDir::new("./fonts", source.metadata().font());
-    
+    let font_dir = font::FontDir::new("./fonts", source.metadata().font())?;
+    let color_set = source.metadata().color_set()?;
+
+    let mut builder = builder::ArrayBuilder::new(color_set, font_dir);
+
+    for cmd in source.body() {
+        builder.process(&cmd.into())?;
+    }
+
+    let arr = builder.finish();
+    save::save_image(arr, "./sample.png")?;
+
     Ok(())
 }

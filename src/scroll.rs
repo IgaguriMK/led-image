@@ -11,7 +11,6 @@ use crate::source::Scroll;
 
 pub fn save_scroll(
     dir_path: impl AsRef<Path>,
-    base_name: &str,
     dot_arr: &DotArray,
     scroll: &Scroll,
     background: &Color,
@@ -23,38 +22,19 @@ pub fn save_scroll(
     let width = scroll.width() as isize;
 
     let (start, end) = (-width, (dot_width) as isize + width);
-
-    let count = (end - start) as usize;
-
     let offsets: Vec<(PathBuf, DotArray)> = (start..end)
         .enumerate()
         .map(|(i, offset)| {
-            let file_name = format!("{}_{}.png", base_name, file_index(count, i));
+            let file_name = format!("{:08}.png", i);
             let path = dir_path.as_ref().join(file_name);
             let arr_slice = dot_arr.slice(offset, scroll.width(), background);
             (path, arr_slice)
         })
         .collect();
 
-    offsets.into_par_iter().try_for_each(|(path, arr_slice)| {
-        save::save_image(path, &arr_slice)
-    })?;
+    offsets
+        .into_par_iter()
+        .try_for_each(|(path, arr_slice)| save::save_image(path, &arr_slice))?;
 
     Ok(())
-}
-
-fn file_index(count: usize, index: usize) -> String {
-    if count < 10 {
-        format!("{:01}", index)
-    } else if count < 100 {
-        format!("{:02}", index)
-    } else if count < 1000 {
-        format!("{:03}", index)
-    } else if count < 10_000 {
-        format!("{:04}", index)
-    } else if count < 100_000 {
-        format!("{:05}", index)
-    } else {
-        format!("{:09}", index)
-    }
 }

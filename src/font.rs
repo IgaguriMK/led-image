@@ -1,3 +1,4 @@
+use std::collections::hash_map::Entry;
 use std::collections::HashMap;
 use std::path::{Path, PathBuf};
 
@@ -26,11 +27,11 @@ impl FontDir {
     }
 
     pub fn get_char(&mut self, ch: char) -> Result<&CharImage> {
-        if !self.cache.contains_key(&ch) {
+        if let Entry::Vacant(vacant) = self.cache.entry(ch) {
             let mut file_name = self.dir.clone();
             file_name.push(format!("{:04x}.png", ch as u16));
 
-            self.cache.insert(ch, CharImage::load(file_name)?);
+            vacant.insert(CharImage::load(file_name)?);
         }
 
         Ok(self.cache.get(&ch).unwrap())

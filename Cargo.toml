@@ -5,6 +5,7 @@ authors = ["Igaguri <igagurimk@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+clap = "2.33.0"
 css-color-parser = "0.1.2"
 failure = "0.1.5"
 image = "0.21.0"

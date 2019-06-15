@@ -52,7 +52,7 @@ impl Array {
             new_array.add_line(new_line);
         }
 
-        return new_array;
+        new_array
     }
 
     pub fn iter(&self) -> impl Iterator<Item = (usize, usize, &Color)> {

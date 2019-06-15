@@ -10,7 +10,7 @@ use failure::format_err;
 
 use crate::result::Result;
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone)]
 pub struct Color {
     pub r: f32,
     pub g: f32,
@@ -81,6 +81,15 @@ impl Color {
     }
 }
 
+impl PartialEq for Color {
+    fn eq(&self, other: &Self) -> bool {
+        self.r::<u8>() == other.r::<u8>()
+            && self.g::<u8>() == other.g::<u8>()
+            && self.b::<u8>() == other.b::<u8>()
+            && self.a::<u8>() == other.a::<u8>()
+    }
+}
+
 impl Eq for Color {}
 
 impl Hash for Color {
@@ -118,7 +127,7 @@ impl ColorSet {
     pub fn get(&self, name: &str) -> Result<&Color> {
         self.set
             .get(name)
-            .ok_or(format_err!("unknown color: '{}'", name.to_string()))
+            .ok_or_else(|| format_err!("unknown color: '{}'", name.to_string()))
     }
 }
 
@@ -196,31 +205,11 @@ pub trait ColorValue {
 
 impl ColorValue for u8 {
     fn to_f32(self) -> f32 {
-        (self as f32) / (Self::max_value() as f32)
+        f32::from(self) / f32::from(Self::max_value())
     }
 
     fn from_f32(v: f32) -> Self {
-        (v * (Self::max_value() as f32)) as Self
-    }
-}
-
-impl ColorValue for u16 {
-    fn to_f32(self) -> f32 {
-        (self as f32) / (Self::max_value() as f32)
-    }
-
-    fn from_f32(v: f32) -> Self {
-        (v * (Self::max_value() as f32)) as Self
-    }
-}
-
-impl ColorValue for u32 {
-    fn to_f32(self) -> f32 {
-        (self as f32) / (Self::max_value() as f32)
-    }
-
-    fn from_f32(v: f32) -> Self {
-        (v * (Self::max_value() as f32)) as Self
+        (v * f32::from(Self::max_value())) as Self
     }
 }
 
@@ -231,15 +220,5 @@ impl ColorValue for f32 {
 
     fn from_f32(v: f32) -> Self {
         v
-    }
-}
-
-impl ColorValue for f64 {
-    fn to_f32(self) -> f32 {
-        self as f32
-    }
-
-    fn from_f32(v: f32) -> Self {
-        v as Self
     }
 }

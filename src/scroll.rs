@@ -1,6 +1,8 @@
 use std::fs;
 use std::path::{Path, PathBuf};
 
+use rayon::prelude::*;
+
 use crate::model::color::Color;
 use crate::model::dot_array::DotArray;
 use crate::result::Result;
@@ -34,9 +36,9 @@ pub fn save_scroll(
         })
         .collect();
 
-    offsets.into_iter().for_each(|(path, arr_slice)| {
-        save::save_image(path, &arr_slice);
-    });
+    offsets.into_par_iter().try_for_each(|(path, arr_slice)| {
+        save::save_image(path, &arr_slice)
+    })?;
 
     Ok(())
 }

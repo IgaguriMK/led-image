@@ -32,8 +32,9 @@ fn wrapped_main() -> Result<()> {
     let arr = builder.finish();
 
     let dot = load::load("./dot.png")?;
+    let dot_arr = model::dot_array::DotArray::new(arr, dot);
 
-    save::save_image(arr, "./sample.png")?;
+    save::save_image(&dot_arr, "./sample.png")?;
 
     Ok(())
 }

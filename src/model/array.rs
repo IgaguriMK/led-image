@@ -33,6 +33,20 @@ impl Array {
         self.height
     }
 
+    pub fn map(&self, f: impl Fn(&Color) -> Color) -> Array {
+        let mut new_array = Array::with_dim(self.cells.len(), self.height());
+
+        for line in &self.cells {
+            let mut new_line = Vec::new();
+            for p in line {
+                new_line.push(f(p));
+            }
+            new_array.add_line(new_line);
+        }
+
+        return new_array;
+    }
+
     #[allow(dead_code)]
     pub fn show_array(&self) {
         let w = self.cells.len();
@@ -64,8 +78,8 @@ impl super::Imageable for Array {
         (self.cells.len(), self.height)
     }
 
-    fn get(&self, x: usize, y: usize) -> &super::color::Color {
-        &self.cells[x][y]
+    fn get(&self, x: usize, y: usize) -> super::color::Color {
+        self.cells[x][y].clone()
     }
 }
 

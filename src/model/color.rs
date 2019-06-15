@@ -2,6 +2,7 @@
 mod test;
 
 use std::collections::HashMap;
+use std::fmt;
 use std::hash::{Hash, Hasher};
 
 use css_color_parser::Color as CssColor;
@@ -110,6 +111,19 @@ impl Hash for Color {
         self.g::<u8>().hash(state);
         self.b::<u8>().hash(state);
         self.a::<u8>().hash(state);
+    }
+}
+
+impl fmt::Display for Color {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "#{:02x}{:02x}{:02x}{:02x}",
+            self.r::<u8>(),
+            self.g::<u8>(),
+            self.b::<u8>(),
+            self.a::<u8>()
+        )
     }
 }
 

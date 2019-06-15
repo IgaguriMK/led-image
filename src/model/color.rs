@@ -115,8 +115,10 @@ impl ColorSet {
         ColorSet { set }
     }
 
-    pub fn get(&self, name: &str) -> std::result::Result<&Color, String> {
-        self.set.get(name).ok_or(name.to_string())
+    pub fn get(&self, name: &str) -> Result<&Color> {
+        self.set
+            .get(name)
+            .ok_or(format_err!("unknown color: '{}'", name.to_string()))
     }
 }
 

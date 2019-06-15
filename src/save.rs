@@ -5,7 +5,7 @@ use image::{ImageBuffer, Rgba};
 use crate::model::Imageable;
 use crate::result::Result;
 
-pub fn save_image(img: &impl Imageable, path: impl AsRef<Path>) -> Result<()> {
+pub fn save_image(path: impl AsRef<Path>, img: &impl Imageable) -> Result<()> {
     let (w, h) = img.dim();
 
     let img = ImageBuffer::from_fn(w as u32, h as u32, |x, y| {

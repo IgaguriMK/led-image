@@ -30,7 +30,7 @@ fn test_color_cross() {
             "cross '{}' and '{}' should be '{}', but '{}'",
             x, y, to_be, actual
         );
-        
+
         let actual_swap = y.cross(&x);
 
         assert_eq!(

@@ -4,9 +4,14 @@ mod load;
 mod model;
 mod result;
 mod save;
+mod scroll;
 mod source;
 
+use crate::builder::ArrayBuilder;
+use crate::font::FontDir;
+use crate::model::dot_array::DotArray;
 use crate::result::Result;
+use crate::scroll::save_scroll;
 use crate::source::Source;
 
 fn main() {
@@ -24,19 +29,24 @@ fn wrapped_main() -> Result<()> {
 
     let meta = source.metadata();
 
-    let font_dir = font::FontDir::new("./fonts", meta.font())?;
+    let font_dir = FontDir::new("./fonts", meta.font())?;
     let color_set = meta.color_set()?;
+    let background = color_set.get("_background")?.clone();
 
-    let mut builder = builder::ArrayBuilder::new(color_set, font_dir);
+    let mut builder = ArrayBuilder::new(color_set, font_dir);
     for cmd in source.body() {
         builder.process(&cmd.into())?;
     }
     let arr = builder.finish();
 
     let dot = load::load(meta.dot())?;
-    let dot_arr = model::dot_array::DotArray::new(arr, dot);
+    let dot_arr = DotArray::new(arr, dot);
 
-    save::save_image(&dot_arr, "./sample.png")?;
+    if let Some(scroll) = meta.scroll() {
+        save_scroll("sample", "sample", &dot_arr, scroll, &background)?;
+    } else {
+        save::save_image("./sample.png", &dot_arr)?;
+    }
 
     Ok(())
 }

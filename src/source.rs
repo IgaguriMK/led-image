@@ -37,6 +37,7 @@ pub struct Metadata {
     colors: HashMap<String, String>,
     dot: String,
     font: String,
+    scroll: Option<Scroll>,
 }
 
 impl Metadata {
@@ -56,6 +57,21 @@ impl Metadata {
         }
 
         builder.build()
+    }
+
+    pub fn scroll(&self) -> Option<&Scroll> {
+        self.scroll.as_ref()
+    }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct Scroll {
+    width: usize,
+}
+
+impl Scroll {
+    pub fn width(&self) -> usize {
+        self.width
     }
 }
 

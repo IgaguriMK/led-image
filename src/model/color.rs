@@ -45,28 +45,6 @@ impl Color {
         Ok(Some(Color::new(ccol.r, ccol.g, ccol.b, ccol.a)))
     }
 
-    pub fn blend(f: &Color, b: &Color) -> Color {
-        let a = f.a + b.a * (1.0 - f.a);
-
-        if a == 0.0 {
-            return Color {
-                r: 0.0,
-                g: 0.0,
-                b: 0.0,
-                a: 0.0,
-            }
-            .normalize();
-        }
-
-        Color {
-            r: (f.r * f.a + b.r * b.a * (1.0 - f.a)) / a,
-            g: (f.g * f.a + b.g * b.a * (1.0 - f.a)) / a,
-            b: (f.b * f.a + b.b * b.a * (1.0 - f.a)) / a,
-            a,
-        }
-        .normalize()
-    }
-
     pub fn cross(&self, p: &Color) -> Color {
         Color {
             r: self.r * p.r,

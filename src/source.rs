@@ -22,8 +22,8 @@ impl Source {
         Ok(from_reader(f)?)
     }
 
-    pub fn metadata(&self) -> &Metadata {
-        &self.meta
+    pub fn metadata(&self) -> Metadata {
+        self.meta.clone()
     }
 
     pub fn body(self) -> impl Iterator<Item = Command> {
@@ -35,12 +35,17 @@ impl Source {
 #[serde(deny_unknown_fields)]
 pub struct Metadata {
     colors: HashMap<String, String>,
+    dot: String,
     font: String,
 }
 
 impl Metadata {
     pub fn font(&self) -> &str {
         self.font.as_str()
+    }
+
+    pub fn dot(&self) -> &str {
+        self.dot.as_str()
     }
 
     pub fn color_set(&self) -> Result<ColorSet> {

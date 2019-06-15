@@ -22,8 +22,10 @@ fn main() {
 fn wrapped_main() -> Result<()> {
     let source = Source::load("./sample.yaml")?;
 
-    let font_dir = font::FontDir::new("./fonts", source.metadata().font())?;
-    let color_set = source.metadata().color_set()?;
+    let meta = source.metadata();
+
+    let font_dir = font::FontDir::new("./fonts", meta.font())?;
+    let color_set = meta.color_set()?;
 
     let mut builder = builder::ArrayBuilder::new(color_set, font_dir);
     for cmd in source.body() {
@@ -31,7 +33,7 @@ fn wrapped_main() -> Result<()> {
     }
     let arr = builder.finish();
 
-    let dot = load::load("./dot.png")?;
+    let dot = load::load(meta.dot())?;
     let dot_arr = model::dot_array::DotArray::new(arr, dot);
 
     save::save_image(&dot_arr, "./sample.png")?;

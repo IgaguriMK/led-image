@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod test;
+
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
@@ -63,12 +66,12 @@ impl Color {
         .normalize()
     }
 
-    pub fn cross(base: &Color, p: &Color) -> Color {
+    pub fn cross(&self, p: &Color) -> Color {
         Color {
-            r: base.r * p.a,
-            g: base.g * p.g,
-            b: base.b * p.b,
-            a: base.a * p.a,
+            r: self.r * p.r,
+            g: self.g * p.g,
+            b: self.b * p.b,
+            a: self.a * p.a,
         }
         .normalize()
     }

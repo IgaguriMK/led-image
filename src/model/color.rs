@@ -15,18 +15,30 @@ pub struct Color {
 }
 
 impl Color {
+    pub fn new<Vr, Vg, Vb, Va>(r: Vr, g: Vg, b: Vb, a: Va) -> Color
+    where
+        Vr: ColorValue,
+        Vg: ColorValue,
+        Vb: ColorValue,
+        Va: ColorValue,
+    {
+        Color {
+            r: r.to_f32(),
+            g: g.to_f32(),
+            b: b.to_f32(),
+            a: a.to_f32(),
+        }
+    }
+
     pub fn parse(s: &str) -> Result<Option<Color>> {
-        if s.chars().nth(0) != Some('#') {
+        if !s.starts_with('#') && !s.starts_with('@') {
             return Ok(None);
         }
 
+        let s = s.trim_start_matches('@');
+
         let ccol = s.parse::<CssColor>()?;
-        Ok(Some(Color {
-            r: (ccol.r as f32) / 255.0,
-            g: (ccol.b as f32) / 255.0,
-            b: (ccol.b as f32) / 255.0,
-            a: ccol.a,
-        }))
+        Ok(Some(Color::new(ccol.r, ccol.g, ccol.b, ccol.a)))
     }
 
     pub fn blend(f: &Color, b: &Color) -> Color {
@@ -58,6 +70,7 @@ impl Color {
             b: base.b * p.b,
             a: base.a * p.a,
         }
+        .normalize()
     }
 
     fn normalize(self) -> Color {
@@ -69,20 +82,20 @@ impl Color {
         }
     }
 
-    pub fn r(&self) -> u8 {
-        (255.0 * self.r) as u8
+    pub fn r<V: ColorValue>(&self) -> V {
+        V::from_f32(self.r)
     }
 
-    pub fn g(&self) -> u8 {
-        (255.0 * self.g) as u8
+    pub fn g<V: ColorValue>(&self) -> V {
+        V::from_f32(self.g)
     }
 
-    pub fn b(&self) -> u8 {
-        (255.0 * self.b) as u8
+    pub fn b<V: ColorValue>(&self) -> V {
+        V::from_f32(self.b)
     }
 
-    pub fn a(&self) -> u8 {
-        (255.0 * self.a) as u8
+    pub fn a<V: ColorValue>(&self) -> V {
+        V::from_f32(self.a)
     }
 }
 
@@ -90,10 +103,10 @@ impl Eq for Color {}
 
 impl Hash for Color {
     fn hash<H: Hasher>(&self, state: &mut H) {
-        self.r().hash(state);
-        self.g().hash(state);
-        self.b().hash(state);
-        self.a().hash(state);
+        self.r::<u8>().hash(state);
+        self.g::<u8>().hash(state);
+        self.b::<u8>().hash(state);
+        self.a::<u8>().hash(state);
     }
 }
 
@@ -177,4 +190,59 @@ impl ColorSetBuilder {
 enum ColorEntry {
     Actual(Color),
     Name(String),
+}
+
+pub trait ColorValue {
+    fn to_f32(self) -> f32;
+    fn from_f32(v: f32) -> Self;
+}
+
+impl ColorValue for u8 {
+    fn to_f32(self) -> f32 {
+        (self as f32) / (Self::max_value() as f32)
+    }
+
+    fn from_f32(v: f32) -> Self {
+        (v * (Self::max_value() as f32)) as Self
+    }
+}
+
+impl ColorValue for u16 {
+    fn to_f32(self) -> f32 {
+        (self as f32) / (Self::max_value() as f32)
+    }
+
+    fn from_f32(v: f32) -> Self {
+        (v * (Self::max_value() as f32)) as Self
+    }
+}
+
+impl ColorValue for u32 {
+    fn to_f32(self) -> f32 {
+        (self as f32) / (Self::max_value() as f32)
+    }
+
+    fn from_f32(v: f32) -> Self {
+        (v * (Self::max_value() as f32)) as Self
+    }
+}
+
+impl ColorValue for f32 {
+    fn to_f32(self) -> f32 {
+        self
+    }
+
+    fn from_f32(v: f32) -> Self {
+        v
+    }
+}
+
+impl ColorValue for f64 {
+    fn to_f32(self) -> f32 {
+        self as f32
+    }
+
+    fn from_f32(v: f32) -> Self {
+        v as Self
+    }
 }

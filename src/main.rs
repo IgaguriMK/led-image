@@ -1,5 +1,6 @@
 mod builder;
 mod font;
+mod load;
 mod model;
 mod result;
 mod save;
@@ -25,12 +26,13 @@ fn wrapped_main() -> Result<()> {
     let color_set = source.metadata().color_set()?;
 
     let mut builder = builder::ArrayBuilder::new(color_set, font_dir);
-
     for cmd in source.body() {
         builder.process(&cmd.into())?;
     }
-
     let arr = builder.finish();
+
+    let dot = load::load("./dot.png")?;
+
     save::save_image(arr, "./sample.png")?;
 
     Ok(())

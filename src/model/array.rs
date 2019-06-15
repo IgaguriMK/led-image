@@ -14,6 +14,13 @@ impl Array {
         }
     }
 
+    pub fn with_dim(width: usize, height: usize) -> Array {
+        Array {
+            cells: Vec::with_capacity(width),
+            height,
+        }
+    }
+
     pub fn add_line(&mut self, line: Vec<Color>) {
         if line.len() != self.height {
             panic!("mismatch height");
@@ -24,11 +31,6 @@ impl Array {
 
     pub fn height(&self) -> usize {
         self.height
-    }
-
-    #[allow(dead_code)]
-    pub fn raw(self) -> Vec<Vec<Color>> {
-        self.cells
     }
 
     #[allow(dead_code)]
@@ -64,5 +66,11 @@ impl super::Imageable for Array {
 
     fn get(&self, x: usize, y: usize) -> &super::color::Color {
         &self.cells[x][y]
+    }
+}
+
+impl AsRef<Vec<Vec<Color>>> for Array {
+    fn as_ref(&self) -> &Vec<Vec<Color>> {
+        &self.cells
     }
 }

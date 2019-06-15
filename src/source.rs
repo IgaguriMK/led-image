@@ -36,17 +36,11 @@ impl Source {
 pub struct Metadata {
     colors: HashMap<String, String>,
     font: String,
-    #[serde(default)]
-    scroll: bool,
 }
 
 impl Metadata {
     pub fn font(&self) -> &str {
         self.font.as_str()
-    }
-
-    pub fn scroll(&self) -> bool {
-        self.scroll
     }
 
     pub fn color_set(&self) -> Result<ColorSet> {

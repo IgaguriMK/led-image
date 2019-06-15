@@ -29,6 +29,14 @@ impl Array {
         self.cells.push(line);
     }
 
+    pub fn get_line(&self, x: usize) -> Option<&Vec<Color>> {
+        if x < self.cells.len() {
+            Some(&self.cells[x])
+        } else {
+            None
+        }
+    }
+
     pub fn height(&self) -> usize {
         self.height
     }
@@ -45,6 +53,13 @@ impl Array {
         }
 
         return new_array;
+    }
+
+    pub fn iter(&self) -> impl Iterator<Item = (usize, usize, &Color)> {
+        self.cells
+            .iter()
+            .enumerate()
+            .flat_map(|(x, line)| line.iter().enumerate().map(move |(y, c)| (x, y, c)))
     }
 
     #[allow(dead_code)]

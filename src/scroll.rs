@@ -1,5 +1,5 @@
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 
 use crate::model::color::Color;
 use crate::model::dot_array::DotArray;
@@ -23,17 +23,20 @@ pub fn save_scroll(
     let (start, end) = (-width, (dot_width) as isize + width);
 
     let count = (end - start) as usize;
-    for (i, offset) in (start..end).enumerate() {
-        if i % 30 == 29 {
-            eprintln!("{} ({:.1} %)", i, 100.0 * (i as f64) / (count as f64));
-        }
 
-        let file_name = format!("{}_{}.png", base_name, file_index(count, i));
-        let path = dir_path.as_ref().join(file_name);
+    let offsets: Vec<(PathBuf, DotArray)> = (start..end)
+        .enumerate()
+        .map(|(i, offset)| {
+            let file_name = format!("{}_{}.png", base_name, file_index(count, i));
+            let path = dir_path.as_ref().join(file_name);
+            let arr_slice = dot_arr.slice(offset, scroll.width(), background);
+            (path, arr_slice)
+        })
+        .collect();
 
-        let arr_slice = dot_arr.slice(offset, scroll.width(), background);
-        save::save_image(path, &arr_slice)?;
-    }
+    offsets.into_iter().for_each(|(path, arr_slice)| {
+        save::save_image(path, &arr_slice);
+    });
 
     Ok(())
 }

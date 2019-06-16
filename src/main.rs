@@ -20,12 +20,9 @@ use crate::scroll::save_scroll;
 use crate::source::Source;
 
 fn main() {
-    match wrapped_main() {
-        Ok(_) => {}
-        Err(err) => {
+    if let Err(err) = wrapped_main() {
             eprintln!("[Error] {}", err);
             std::process::exit(1);
-        }
     }
 }
 
@@ -49,8 +46,7 @@ fn wrapped_main() -> Result<()> {
         .arg(
             Arg::with_name("ffmpeg")
                 .long("ffmpeg")
-                .takes_value(true)
-                .default_value("30"),
+                .takes_value(true),
         )
         .get_matches_safe()?;
 
@@ -123,8 +119,6 @@ fn wrapped_main() -> Result<()> {
                         .unwrap_or_else(|| "?".to_string())
                 ));
             }
-
-            std::fs::remove_dir_all(&out_name)?;
         }
     } else {
         let dir_name = if !out_name.ends_with(".png") {

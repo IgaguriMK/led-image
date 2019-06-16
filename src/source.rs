@@ -13,6 +13,7 @@ use crate::result::Result;
 #[serde(deny_unknown_fields)]
 pub struct Source {
     meta: Metadata,
+    output: Option<String>,
     body: Vec<Command>,
 }
 
@@ -26,8 +27,16 @@ impl Source {
         self.meta.clone()
     }
 
-    pub fn body(self) -> impl Iterator<Item = Command> {
-        self.body.into_iter()
+    pub fn output(&self) -> Option<String> {
+        if let Some(ref o) = self.output {
+            Some(o.clone())
+        } else {
+            None
+        }
+    }
+
+    pub fn body(&self) -> impl Iterator<Item = &Command> {
+        self.body.iter()
     }
 }
 
@@ -83,11 +92,20 @@ pub enum Command {
     Space(Space),
 }
 
-impl Into<command::Command> for Command {
-    fn into(self) -> command::Command {
-        match self {
-            Command::Text(text) => command::Command::Text(text.into()),
-            Command::Space(space) => command::Command::Space(space.into()),
+impl<'a> command::Command<'a, Text, Space> for Command {
+    fn when_text<U>(&'a self, none: U, f: impl FnOnce(&Text) -> U) -> U {
+        if let Command::Text(text) = self {
+            f(text)
+        } else {
+            none
+        }
+    }
+
+    fn when_space<U>(&'a self, none: U, f: impl FnOnce(&Space) -> U) -> U {
+        if let Command::Space(space) = self {
+            f(space)
+        } else {
+            none
         }
     }
 }
@@ -103,9 +121,17 @@ pub struct Text {
     background: Option<String>,
 }
 
-impl Into<command::Text> for Text {
-    fn into(self) -> command::Text {
-        command::Text::new(self.content, self.foreground, self.background)
+impl command::Text for Text {
+    fn content(&self) -> &str {
+        &self.content
+    }
+
+    fn foreground(&self) -> Option<&str> {
+        self.foreground.as_ref().map(|s| &**s)
+    }
+
+    fn background(&self) -> Option<&str> {
+        self.background.as_ref().map(|s| &**s)
     }
 }
 
@@ -118,8 +144,12 @@ pub struct Space {
     background: Option<String>,
 }
 
-impl Into<command::Space> for Space {
-    fn into(self) -> command::Space {
-        command::Space::new(self.width, self.background)
+impl command::Space for Space {
+    fn width(&self) -> usize {
+        self.width
+    }
+
+    fn background(&self) -> Option<&str> {
+        self.background.as_ref().map(|s| &**s)
     }
 }

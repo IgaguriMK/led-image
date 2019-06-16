@@ -24,11 +24,16 @@ impl ArrayBuilder {
         }
     }
 
-    pub fn process(&mut self, command: &Command) -> Result<()> {
-        match command {
-            Command::Text(text) => self.process_text(text),
-            Command::Space(space) => self.process_space(space),
-        }
+    pub fn process<'a, C, T, S>(&mut self, command: &'a C) -> Result<()>
+    where
+        C: Command<'a, T, S>,
+        T: Text,
+        S: Space,
+    {
+        command.when_text(Ok(()), |text| self.process_text(text))?;
+        command.when_space(Ok(()), |space| self.process_space(space))?;
+
+        Ok(())
     }
 
     fn process_text(&mut self, text: &Text) -> Result<()> {

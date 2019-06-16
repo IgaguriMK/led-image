@@ -65,7 +65,7 @@ fn wrapped_main() -> Result<()> {
 
     let mut builder = ArrayBuilder::new(color_set, font_dir);
     for cmd in source.body() {
-        builder.process(&cmd.into())?;
+        builder.process(cmd)?;
     }
     let arr = builder.finish();
 
@@ -75,6 +75,7 @@ fn wrapped_main() -> Result<()> {
     let out_name = matches
         .value_of("output")
         .map(|s| s.to_string())
+        .or_else(|| source.output())
         .unwrap_or_else(|| {
             source_file
                 .trim_end_matches(".yaml")

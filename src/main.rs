@@ -7,7 +7,7 @@ mod save;
 mod scroll;
 mod source;
 
-use std::process::{Command, Stdio};
+use std::process::{Command, Stdio, exit};
 
 use clap::{crate_authors, crate_description, crate_name, crate_version, App, Arg};
 use failure::format_err;
@@ -22,7 +22,7 @@ use crate::source::Source;
 fn main() {
     if let Err(err) = wrapped_main() {
             eprintln!("[Error] {}", err);
-            std::process::exit(1);
+            exit(1);
     }
 }
 

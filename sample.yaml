@@ -1,0 +1,19 @@
+meta:
+  colors:
+    red: "#ff2222"
+    orange: "#ff8822"
+    _background: "#222222"
+    _foreground: orange
+  dot: dots/rgb_circle.png
+  font: k8x12
+  scroll:
+    width: 64
+output: sample
+body:
+  -
+    text:
+      c: "'led-image'"
+      f: red
+  -
+    text:
+      c: " is an LED display text movie generator."

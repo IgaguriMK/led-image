@@ -1,7 +1,6 @@
 /target
 **/*.rs.bk
 
-*.yaml
 *.png
 *.mp4
 /fonts

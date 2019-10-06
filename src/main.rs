@@ -7,7 +7,7 @@ mod save;
 mod scroll;
 mod source;
 
-use std::process::{Command, Stdio, exit};
+use std::process::{Command, Stdio};
 
 use clap::{crate_authors, crate_description, crate_name, crate_version, App, Arg};
 use failure::format_err;
@@ -22,7 +22,7 @@ use crate::source::Source;
 fn main() {
     if let Err(err) = wrapped_main() {
             eprintln!("[Error] {}", err);
-            exit(1);
+            std::process::exit(1);
     }
 }
 
@@ -46,7 +46,8 @@ fn wrapped_main() -> Result<()> {
         .arg(
             Arg::with_name("ffmpeg")
                 .long("ffmpeg")
-                .takes_value(true),
+                .takes_value(true)
+                .help("Generate mp4 with specified fps"),
         )
         .get_matches_safe()?;
 
